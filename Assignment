@@ -1,1 +1,47 @@
+package main
 
+import (
+    "fmt"
+    "math"
+)
+
+func signalQuality(q, d float64) int {
+    return int(math.Floor(q / (1 + d)))
+}
+
+func networkQuality(towers [][]int, radius, x, y int) int {
+    quality := 0
+    for _, tower := range towers {
+        xi, yi, qi := tower[0], tower[1], tower[2]
+        d := math.Sqrt(math.Pow(float64(xi-x), 2) + math.Pow(float64(yi-y), 2))
+        if d <= float64(radius) {
+            quality += signalQuality(float64(qi), d)
+        }
+    }
+    return quality
+}
+
+func getBestCoordinate(towers [][]int, radius int) []int {
+    maxQuality := -1
+    bestCoord := []int{math.MaxInt32, math.MaxInt32}
+for x := 0; x <= 50; x++ {
+        for y := 0; y <= 50; y++ {
+            quality := networkQuality(towers, radius, x, y)
+            if quality > maxQuality {
+                maxQuality = quality
+                bestCoord = []int{x, y}
+            } else if quality == maxQuality && (x < bestCoord[0] || (x == bestCoord[0] && y < bestCoord[1])) {
+                bestCoord = []int{x, y}
+            }
+        }
+    }
+
+    return bestCoord
+}
+
+func main() {
+    towers := [][]int{{1,2,5},{2,1,7},{3,1,9}}
+    radius := 2
+    bestCoord := getBestCoordinate(towers, radius)
+    fmt.Println(bestCoord) // Output: [2 1]
+}
